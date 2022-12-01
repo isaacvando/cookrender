@@ -2,27 +2,31 @@ import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.render', async () => {
 		const editor = vscode.window.activeTextEditor;
-		if(editor && vscode.workspace.workspaceFolders !== undefined) {
-			const md = getMarkdown(new Parser().parse(editor.document.getText()));
-			console.log(md);
 
-			const path = vscode.workspace.workspaceFolders[0].uri.path;
-			console.log("path: " + path);
-			vscode.workspace.fs.writeFile(vscode.Uri.parse(path + '/testfile.md'), new TextEncoder().encode(md));
+		if(editor) {
+			const uri: vscode.Uri = editor.document.uri;
+			const fileName: string | undefined = uri.toString().split('/').pop();
+
+			if (fileName?.split('.').length === 2 && fileName?.split('.').pop() === "cook") {
+				const fileNameNoExt: string = fileName.split('.')[0];
+				const md: string = getMarkdown(new Parser().parse(editor.document.getText()));
+				const targetUri: string = uri.toString().slice(0, -fileName.length) + fileNameNoExt + '.md';
+				vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
+				vscode.window.showInformationMessage(`Created ${fileNameNoExt}.md`);
+			} else {
+				vscode.window.showInformationMessage('Unable to render; Please open a .cook file');
+			}
+		} else {
+			vscode.window.showInformationMessage('Unable to render; Please open a .cook file');
 		}
-
-		vscode.window.showInformationMessage('Time to render .cook');
 	});
 
 	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}
 
 function getMarkdown(parsed: ParseResult): string {
