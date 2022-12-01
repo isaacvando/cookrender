@@ -12,7 +12,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			if (fileName?.split('.').length === 2 && fileName?.split('.').pop() === "cook") {
 				const fileNameNoExt: string = fileName.split('.')[0];
-				const md: string = getMarkdown(new Parser().parse(editor.document.getText()));
+				const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
 				const targetUri: string = uri.toString().slice(0, -fileName.length) + fileNameNoExt + '.md';
 				vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
 				vscode.window.showInformationMessage(`Created ${fileNameNoExt}.md`);
@@ -29,12 +29,28 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {}
 
-function getMarkdown(parsed: ParseResult): string {
-	let md = ""
+function getMarkdown(parsed: ParseResult, fileName: string): string {
+	let md = `# ${fileName}\n\n`;
 
 	for (let key in parsed.metadata) {
-		md += `**${key}** ${parsed.metadata[key]} \\\n`;
+		md += `**${key}:** ${parsed.metadata[key]} \\\n`;
 	}
+
+	md += parsed.ingredients.length === 0 ? "" : "## Ingredients\n";
+	parsed.ingredients.forEach((ingredient) => {
+		let amount = "";
+		if(ingredient.quantity && ingredient.units)
+			amount = ` **${ingredient.quantity} ${ingredient.units}** `;
+		else if(ingredient.quantity)
+			amount = ` **${ingredient.quantity}** `
+
+		md += `-${amount}${ingredient.name}\n`;
+	});
+
+	md += parsed.cookwares.length == 0 ? "" : "\n## Cookware\n";
+	parsed.cookwares.forEach((cookware) => {
+		md += `- **${cookware.quantity}** ${cookware.name}\n`
+	})
 
 	return md;
 }
