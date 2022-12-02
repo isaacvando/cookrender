@@ -33,7 +33,7 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
 	for (let key in parsed.metadata) {
-		md += `**${key}:** ${parsed.metadata[key]} \\\n`;
+		md += `**${key}:** ${parsed.metadata[key]}  \n`;
 	}
 
 	md += parsed.ingredients.length ? "## Ingredients\n" : "";
@@ -52,14 +52,36 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		md += "- ";
 		step.forEach((part) => {
 			if(part.type === "text") {
-				md += part.value;
+				md += escapeMD(part.value);
 			}
 			else {
-				md += `**${part.name?.trim()}**`;
+				md += `**${escapeMD(part.name).trim()}**`;
 			}
 		});
 		md += "\n";
 	});
 
 	return md;
+}
+
+// escape markdown control symbols so they are printed as literals instead of disrupting the expected formatting
+// currently this method escapes all control symbols regardless of context which means sometims the output will have uneccesarily
+// escaped symbols which is kind of annoying
+function escapeMD(x: string | undefined): string {
+	if (!x)
+		return "";
+
+	return x.replace(/#/g, '\\#')
+		.replace(/-/g, '\\-')
+		.replace(/~/g, '\\~')
+		.replace(/_/g, '\\_')
+		.replace(/\*/g, '\\*')
+		.replace(/>/g, '\\>')
+		.replace(/</g, '\\<')
+		.replace(/\(/g, '\\(')
+		.replace(/\(/g, '\\)')
+		.replace(/`/g, '\\`')
+		.replace(/\|/g, '\\|')
+		.replace(/!/g, '\\!')
+		.replace(/\./g, '\\.');
 }
