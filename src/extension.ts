@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 
-export async function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('cookrender.render', async () => {
+export function activate(context: vscode.ExtensionContext) {
+	let disposable = vscode.commands.registerCommand('cookrender.render', () => {
 		const editor = vscode.window.activeTextEditor;
 
 		if(editor) {
@@ -36,21 +36,30 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		md += `**${key}:** ${parsed.metadata[key]} \\\n`;
 	}
 
-	md += parsed.ingredients.length === 0 ? "" : "## Ingredients\n";
+	md += parsed.ingredients.length ? "## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
-		let amount = "";
-		if(ingredient.quantity && ingredient.units)
-			amount = ` **${ingredient.quantity} ${ingredient.units}** `;
-		else if(ingredient.quantity)
-			amount = ` **${ingredient.quantity}** `
-
-		md += `-${amount}${ingredient.name}\n`;
+		let amount = ingredient.units ? `${ingredient.quantity} ${ingredient.units}` : `${ingredient.quantity}`;
+		md += `- **${amount}** ${ingredient.name}\n`;
 	});
 
-	md += parsed.cookwares.length == 0 ? "" : "\n## Cookware\n";
+	md += parsed.cookwares.length ? "\n## Cookware\n" : "";
 	parsed.cookwares.forEach((cookware) => {
-		md += `- **${cookware.quantity}** ${cookware.name}\n`
-	})
+		md += `- **${cookware.quantity}** ${cookware.name}\n`;
+	});
+
+	md += parsed.steps.length ? "\n## Steps\n" : "";
+	parsed.steps.forEach((step) => {
+		md += "- ";
+		step.forEach((part) => {
+			if(part.type === "text") {
+				md += part.value;
+			}
+			else {
+				md += `**${part.name?.trim()}**`;
+			}
+		});
+		md += "\n";
+	});
 
 	return md;
 }
