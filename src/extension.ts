@@ -3,9 +3,21 @@ import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 
 export function activate(context: vscode.ExtensionContext) {
-	// const watcher = vscode.workspace.createFileSystemWatcher("*.cook", true, false, true);
 	let disposable = vscode.commands.registerCommand('cookrender.render', () => {
-		const editor = vscode.window.activeTextEditor;
+		vscode.workspace.onDidChangeTextDocument((event) => {
+			if (!event.document.isDirty) {
+				render();
+			}
+		});
+	});
+
+	context.subscriptions.push(disposable);
+}
+
+export function deactivate() {}
+
+function render() {
+	const editor = vscode.window.activeTextEditor;
 		if (!editor)
 			return vscode.window.showInformationMessage('Unable to render; Please open a .cook file');
 
@@ -21,12 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 		} else {
 			vscode.window.showInformationMessage('Unable to render; Please open a .cook file');
 		}
-	});
-
-	context.subscriptions.push(disposable);
 }
-
-export function deactivate() {}
 
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
