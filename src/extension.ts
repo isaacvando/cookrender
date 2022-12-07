@@ -40,9 +40,8 @@ function render() {
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
-	for (let key in parsed.metadata) {
+	for (let key in parsed.metadata)
 		md += `**${key}:** ${parsed.metadata[key]}  \n`;
-	}
 
 	md += parsed.ingredients.length ? "## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
