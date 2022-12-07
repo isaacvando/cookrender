@@ -10,14 +10,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:cookrender.render"
+    "onCommand:cookrender.enableRendering"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "cookrender.render",
-        "title": "Render .cook"
+        "command": "cookrender.enableRendering",
+        "title": "Enable render on save"
       }
     ]
   },
