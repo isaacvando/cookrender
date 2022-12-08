@@ -23,7 +23,6 @@ function render() {
 	if (!editor)
 		return;
 
-	const uri: vscode.Uri = editor.document.uri;
 	const fileName = posix.basename(editor.document.fileName);
 	if (posix.extname(fileName) !== ".cook")
 		return;
@@ -31,28 +30,26 @@ function render() {
 	const fileNameNoExt: string = fileName.split('.')[0];
 	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
 
-	if (vscode.workspace.workspaceFolders === undefined)
-		return;
-	let wf = vscode.workspace.workspaceFolders![0].uri.path ;
-	const targetUri: string = posix.join(...[wf, fileNameNoExt + '.md']);
+	const targetUri: string = posix.join(...[posix.dirname(editor.document.fileName), fileNameNoExt + '.md']);
 	vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
 }
 
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
+	md += parsed.metadata ? "\n## Metadata\n" : "";
 	for (let key in parsed.metadata)
-		md += `**${key}:** ${parsed.metadata[key]}  \n`;
+		md += `**${escapeMD(key)}:** ${escapeMD(parsed.metadata[key])}  \n`;
 
 	md += parsed.ingredients.length ? "\n## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
 		let amount = ingredient.units ? `${ingredient.quantity} ${ingredient.units}` : `${ingredient.quantity}`;
-		md += `- **${amount}** ${ingredient.name}\n`;
+		md += `- **${escapeMD(amount)}** ${escapeMD(ingredient.name)}\n`;
 	});
 
 	md += parsed.cookwares.length ? "\n## Cookware\n" : "";
 	parsed.cookwares.forEach((cookware) => {
-		md += `- **${cookware.quantity}** ${cookware.name}\n`;
+		md += `- **${escapeMD(cookware.quantity.toString())}** ${escapeMD(cookware.name)}\n`;
 	});
 
 	md += parsed.steps.length ? "\n## Steps\n" : "";
