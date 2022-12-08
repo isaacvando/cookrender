@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 import { posix } from 'path';
+import { getVSCodeDownloadUrl } from '@vscode/test-electron/out/util';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
@@ -29,9 +30,12 @@ function render() {
 
 	const fileNameNoExt: string = fileName.split('.')[0];
 	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
-	const targetUri: string = uri.toString().slice(0, -fileName.length) + fileNameNoExt + '.md';
+
+	if (vscode.workspace.workspaceFolders === undefined)
+		return;
+	let wf = vscode.workspace.workspaceFolders![0].uri.path ;
+	const targetUri: string = posix.join(...[wf, fileNameNoExt + '.md']);
 	vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
-	// vscode.window.showInformationMessage(`Wrote to ${fileNameNoExt}.md`);
 }
 
 function getMarkdown(parsed: ParseResult, fileName: string): string {
@@ -40,18 +44,18 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	for (let key in parsed.metadata)
 		md += `**${key}:** ${parsed.metadata[key]}  \n`;
 
-	md += parsed.ingredients.length ? "## Ingredients\n" : "";
+	md += parsed.ingredients.length ? "\n## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
 		let amount = ingredient.units ? `${ingredient.quantity} ${ingredient.units}` : `${ingredient.quantity}`;
 		md += `- **${amount}** ${ingredient.name}\n`;
 	});
 
-	md += parsed.cookwares.length ? "## Cookware\n" : "";
+	md += parsed.cookwares.length ? "\n## Cookware\n" : "";
 	parsed.cookwares.forEach((cookware) => {
 		md += `- **${cookware.quantity}** ${cookware.name}\n`;
 	});
 
-	md += parsed.steps.length ? "## Steps\n" : "";
+	md += parsed.steps.length ? "\n## Steps\n" : "";
 	parsed.steps.forEach((step) => {
 		md += "- ";
 		step.forEach((part) => {
