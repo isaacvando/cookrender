@@ -17,7 +17,7 @@
     "commands": [
       {
         "command": "cookrender.enableRendering",
-        "title": "Enable render on save"
+        "title": ".cook: enable rendering"
       }
     ]
   },
