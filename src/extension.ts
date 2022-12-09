@@ -2,15 +2,12 @@ import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 import { posix } from 'path';
-import { getVSCodeDownloadUrl } from '@vscode/test-electron/out/util';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
 		vscode.window.showInformationMessage("Rendering enabled");
 		render();
-		vscode.workspace.onDidChangeTextDocument((event) => {
-			render();
-		});
+		vscode.workspace.onDidChangeTextDocument(render);
 	});
 
 	context.subscriptions.push(disposable);
@@ -37,7 +34,7 @@ function render() {
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
-	md += parsed.metadata ? "\n## Metadata\n" : "";
+	md += parsed.metadata.keys ? "\n## Metadata\n" : "";
 	for (let key in parsed.metadata)
 		md += `**${escapeMD(key)}:** ${escapeMD(parsed.metadata[key])}  \n`;
 
