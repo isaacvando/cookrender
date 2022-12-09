@@ -3,6 +3,7 @@
   "displayName": "Cook Render",
   "description": "Convert .cook to .md",
   "icon": "icon.png",
+  "license": "BSD3",
   "homepage": "https://github.com/isaacvando/cookrender",
   "repository": {
     "type": "git",
