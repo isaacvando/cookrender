@@ -7,7 +7,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
 		vscode.window.showInformationMessage("Rendering enabled");
 		render();
-		vscode.workspace.onDidChangeTextDocument(render);
+		vscode.workspace.onDidChangeTextDocument(() => {
+			render();
+		});
 	});
 
 	context.subscriptions.push(disposable);
