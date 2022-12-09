@@ -55,7 +55,12 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	parsed.steps.forEach((step) => {
 		md += "- ";
 		step.forEach((part) => {
-			md += part.type === "text" ? escapeMD(part.value) : `**${escapeMD(part.name).trim()}**`;
+			if (part.type === "text") 
+				md += escapeMD(part.value);
+			else if (part.type === "timer")
+				md += `**${escapeMD(part.quantity.toString())}**`;
+			else
+				md += `**${escapeMD(part.name).trim()}**`;
 		});
 		md += "\n";
 	});
