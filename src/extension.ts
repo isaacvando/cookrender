@@ -33,6 +33,9 @@ function render() {
 	vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
 }
 
+// TODO: add support for recipes
+
+
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
@@ -43,7 +46,10 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	md += parsed.ingredients.length ? "\n## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
 		let amount = ingredient.units ? `${ingredient.quantity} ${ingredient.units}` : `${ingredient.quantity}`;
-		md += `- **${escapeMD(amount)}** ${escapeMD(ingredient.name)}\n`;
+		vscode.window.showInformationMessage(ingredient.units.toString() + " " + ingredient.name.toString() + " " + ingredient.quantity.toString());
+		md += `- **${escapeMD(amount)}**`;
+		// md += ` **${escapeMD(ing)}`
+		md += `${escapeMD(ingredient.name)}\n`;
 	});
 
 	md += parsed.cookwares.length ? "\n## Cookware\n" : "";
@@ -54,20 +60,22 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	md += parsed.steps.length ? "\n## Steps\n" : "";
 	parsed.steps.forEach((step) => {
 		md += "- ";
+		let val = "";
 		step.forEach((part) => {
 			if (part.type === "text") 
-				md += escapeMD(part.value);
+				val += escapeMD(part.value);
 			else if (part.type === "timer")
-				md += `**${escapeMD(part.quantity.toString())}**`;
+				val += `**${escapeMD(part.quantity.toString())}**`;
 			else
-				md += `**${escapeMD(part.name).trim()}**`;
+				val += `**${escapeMD(part.name).trim()}**`;
 		});
-		md += "\n";
+		md += val.trim() + "\n"; // .trim() removes leading space that would unintentionally alter .md formatting
 	});
 
 	return md;
 }
 
+// TODO: account for tabs
 // escape markdown control symbols so they are printed as literals instead of disrupting the expected formatting
 // currently this method escapes all control symbols regardless of context which means sometims the output will have uneccesarily
 // escaped symbols which is kind of annoying

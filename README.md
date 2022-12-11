@@ -5,4 +5,6 @@ To run the extension, open a `.cook` file and run the `cookrender.enableRenderin
 
 ![Demo](demo.gif)
 
+Check out [cooklang.org](https://cooklang.org) for more information.
+
 Feel free to open an issue or PR!
