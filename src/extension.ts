@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
-import { posix } from 'path';
+import { parse, posix } from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
@@ -33,11 +33,19 @@ function render() {
 	vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
 }
 
-// TODO: add support for recipes
-
-
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
+
+	if(parsed.shoppingList && !parsed.steps.length) {
+		for (let key in parsed.shoppingList) {
+			md += `## ${escapeMD(key)}\n`;
+			parsed.shoppingList[key].forEach((item) => {
+				md += `- ${escapeMD(item.name)}` + (item.synonym ? ` | ${escapeMD(item.synonym)}` : "") + "\n";
+			});
+			md += "\n";
+		}
+		return md;
+	}
 
 	md += parsed.metadata.keys ? "\n## Metadata\n" : "";
 	for (let key in parsed.metadata)
@@ -75,7 +83,6 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	return md;
 }
 
-// TODO: account for tabs
 // escape markdown control symbols so they are printed as literals instead of disrupting the expected formatting
 // currently this method escapes all control symbols regardless of context which means sometims the output will have uneccesarily
 // escaped symbols which is kind of annoying

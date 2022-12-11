@@ -7,4 +7,6 @@ To run the extension, open a `.cook` file and run the `cookrender.enableRenderin
 
 Check out [cooklang.org](https://cooklang.org) for more information.
 
+Cook Render supports the recipe and shopping list specifications but each file may only contain one of the two.
+
 Feel free to open an issue or PR!
