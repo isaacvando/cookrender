@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
-import { parse, posix } from 'path';
+import { posix } from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
@@ -19,7 +19,7 @@ export function deactivate() {}
 
 function render() {
 	const editor = vscode.window.activeTextEditor;
-	if (!editor)
+	if (!editor) 
 		return;
 
 	const fileName = posix.basename(editor.document.fileName);
@@ -54,10 +54,7 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	md += parsed.ingredients.length ? "\n## Ingredients\n" : "";
 	parsed.ingredients.forEach((ingredient) => {
 		let amount = ingredient.units ? `${ingredient.quantity} ${ingredient.units}` : `${ingredient.quantity}`;
-		vscode.window.showInformationMessage(ingredient.units.toString() + " " + ingredient.name.toString() + " " + ingredient.quantity.toString());
-		md += `- **${escapeMD(amount)}**`;
-		// md += ` **${escapeMD(ing)}`
-		md += `${escapeMD(ingredient.name)}\n`;
+		md += `- **${escapeMD(amount)}** ${escapeMD(ingredient.name)}\n`;
 	});
 
 	md += parsed.cookwares.length ? "\n## Cookware\n" : "";
@@ -72,9 +69,10 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		step.forEach((part) => {
 			if (part.type === "text") 
 				val += escapeMD(part.value);
-			else if (part.type === "timer")
-				val += `**${escapeMD(part.quantity.toString())}**`;
-			else
+			else if (part.type === "timer") {
+				let amount = `${part.units ? " " + escapeMD(part.units) + "**" : "**"}`;
+				val += `**${escapeMD(part.quantity.toString())}${amount}`;
+			} else
 				val += `**${escapeMD(part.name).trim()}**`;
 		});
 		md += val.trim() + "\n"; // .trim() removes leading space that would unintentionally alter .md formatting
@@ -97,8 +95,6 @@ function escapeMD(x: string | undefined): string {
 		.replace(/\*/g, '\\*')
 		.replace(/>/g, '\\>')
 		.replace(/</g, '\\<')
-		.replace(/\(/g, '\\(')
-		.replace(/\(/g, '\\)')
 		.replace(/`/g, '\\`')
 		.replace(/\|/g, '\\|')
 		.replace(/!/g, '\\!')
