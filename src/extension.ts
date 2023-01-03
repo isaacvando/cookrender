@@ -63,8 +63,8 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 	});
 
 	md += parsed.steps.length ? "\n## Steps\n" : "";
-	parsed.steps.forEach((step) => {
-		md += "- ";
+	parsed.steps.forEach((step, index) => {
+		md += `${index+1}. `;
 		let val = "";
 		step.forEach((part) => {
 			if (part.type === "text") 
