@@ -5,6 +5,8 @@ To run the extension, open a `.cook` file and run the `cookrender.enableRenderin
 
 ![Demo](demo.gif)
 
+To turn on inline quantities place `"cookrender.enableInlineQuanitites": true` in your user settings.json file. 
+
 Check out [cooklang.org](https://cooklang.org) for more information.
 
 Cook Render supports the recipe and shopping list specifications but each file may only contain one of the two.

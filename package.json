@@ -16,7 +16,7 @@
     "render",
     "markdown"
   ],
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -32,6 +32,18 @@
       {
         "command": "cookrender.enableRendering",
         "title": ".cook: enable rendering"
+      }
+    ],
+    "configuration":[
+      {
+        "title": "Cook Render",
+        "properties": {
+          "cookrender.enableInlineQuantities": {
+            "type": "boolean",
+            "default": false,
+            "description": "When enabled, quanities will be listed next to ingredients and cookware in the steps section."
+        }
+        }
       }
     ]
   },

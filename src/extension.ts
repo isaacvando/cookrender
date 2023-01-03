@@ -62,18 +62,28 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		md += `- **${escapeMD(cookware.quantity.toString())}** ${escapeMD(cookware.name)}\n`;
 	});
 
+	const inline = vscode.workspace.getConfiguration("cookrender").get("enableInlineQuantities");
 	md += parsed.steps.length ? "\n## Steps\n" : "";
 	parsed.steps.forEach((step, index) => {
 		md += `${index+1}. `;
 		let val = "";
 		step.forEach((part) => {
-			if (part.type === "text") 
+			if (part.type === "text") {
 				val += escapeMD(part.value);
+			}
 			else if (part.type === "timer") {
-				let amount = `${part.units ? " " + escapeMD(part.units) + "**" : "**"}`;
-				val += `**${escapeMD(part.quantity.toString())}${amount}`;
-			} else
-				val += `**${escapeMD(part.name).trim()}**`;
+				const amount = part.units ? ` ${escapeMD(part.units)}` : "";
+				val += `**${escapeMD(part.quantity.toString())}${amount}**`;
+			} 
+			else if (part.type === "ingredient") {
+				const units = part.units ? ` ${escapeMD(part.units)}` : "";
+				const quantity = inline ? ` (${escapeMD(part.quantity.toString())}${units})` : "";
+				val += `**${escapeMD(part.name).trim()}${escapeMD(quantity)}**`;
+			} 
+			else {
+				const quantity = inline ? ` (${escapeMD(part.quantity.toString())})` : "";
+				val += `**${escapeMD(part.name).trim()}${escapeMD(quantity)}**`;
+			}
 		});
 		md += val.trim() + "\n"; // .trim() removes leading space that would unintentionally alter .md formatting
 	});
@@ -98,5 +108,5 @@ function escapeMD(x: string | undefined): string {
 		.replace(/`/g, '\\`')
 		.replace(/\|/g, '\\|')
 		.replace(/!/g, '\\!')
-		.replace(/\./g, '\\.');
+		.replace(/\./g, '\.');
 }
