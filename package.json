@@ -16,7 +16,7 @@
     "render",
     "markdown"
   ],
-  "version": "0.4.0",
+  "version": "0.4.2",
   "engines": {
     "vscode": "^1.74.0"
   },

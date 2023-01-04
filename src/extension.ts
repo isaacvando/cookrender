@@ -30,7 +30,7 @@ function render() {
 	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
 
 	const targetUri: string = posix.join(...[posix.dirname(editor.document.fileName), fileNameNoExt + '.md']);
-	vscode.workspace.fs.writeFile(vscode.Uri.parse(targetUri), new TextEncoder().encode(md));
+	vscode.workspace.fs.writeFile(vscode.Uri.file(targetUri), new TextEncoder().encode(md));
 }
 
 function getMarkdown(parsed: ParseResult, fileName: string): string {
