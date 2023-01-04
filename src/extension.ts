@@ -62,7 +62,6 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		md += `- **${escapeMD(cookware.quantity.toString())}** ${escapeMD(cookware.name)}\n`;
 	});
 
-	const inline = vscode.workspace.getConfiguration("cookrender").get("enableInlineQuantities");
 	md += parsed.steps.length ? "\n## Steps\n" : "";
 	parsed.steps.forEach((step, index) => {
 		md += `${index+1}. `;
@@ -76,11 +75,13 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 				val += `**${escapeMD(part.quantity.toString())}${amount}**`;
 			} 
 			else if (part.type === "ingredient") {
+				const inline = vscode.workspace.getConfiguration("cookrender").get("enableInlineIngredientQuantities");
 				const units = part.units ? ` ${escapeMD(part.units)}` : "";
 				const quantity = inline ? ` (${escapeMD(part.quantity.toString())}${units})` : "";
 				val += `**${escapeMD(part.name).trim()}${escapeMD(quantity)}**`;
 			} 
 			else {
+				const inline = vscode.workspace.getConfiguration("cookrender").get("enableInlineCookwareQuantities");
 				const quantity = inline ? ` (${escapeMD(part.quantity.toString())})` : "";
 				val += `**${escapeMD(part.name).trim()}${escapeMD(quantity)}**`;
 			}

@@ -5,7 +5,7 @@ To run the extension, open a `.cook` file and run the `cookrender.enableRenderin
 
 ![Demo](demo.gif)
 
-To turn on inline quantities place `"cookrender.enableInlineQuanitites": true` in your user settings.json file. 
+To turn on inline quantities for ingredients place `"cookrender.enableInlineIngredientQuanitites": true` in your user settings.json file. The same can be done for cookware.
 
 Check out [cooklang.org](https://cooklang.org) for more information.
 

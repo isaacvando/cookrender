@@ -16,7 +16,7 @@
     "render",
     "markdown"
   ],
-  "version": "0.3.0",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -38,11 +38,16 @@
       {
         "title": "Cook Render",
         "properties": {
-          "cookrender.enableInlineQuantities": {
+          "cookrender.enableInlineIngredientQuantities": {
             "type": "boolean",
             "default": false,
-            "description": "When enabled, quanities will be listed next to ingredients and cookware in the steps section."
-        }
+            "description": "When enabled, quanities will be listed next to ingredients in the steps section."
+          },
+          "cookrender.enableInlineCookwareQuantities": {
+            "type": "boolean",
+            "default": false,
+            "description": "When enabled, quanities will be listed next to cookware in the steps section."
+          }
         }
       }
     ]
