@@ -34,7 +34,7 @@
         "title": ".cook: enable rendering"
       }
     ],
-    "configuration":[
+    "configuration": [
       {
         "title": "Cook Render",
         "properties": {
@@ -74,6 +74,6 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@cooklang/cooklang-ts": "^1.2.0"
+    "@cooklang/cooklang-ts": "^1.2.2"
   }
 }
