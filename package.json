@@ -24,7 +24,8 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCommand:cookrender.enableRendering"
+    "onCommand:cookrender.enableRendering",
+    "onCommand:cookrender.renderAllInWorkspace"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -32,6 +33,10 @@
       {
         "command": "cookrender.enableRendering",
         "title": ".cook: enable rendering"
+      },
+      {
+        "command": "cookrender.renderAllInWorkspace",
+        "title": ".cook: render all files in workspace"
       }
     ],
     "configuration": [

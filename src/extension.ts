@@ -4,7 +4,7 @@ import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
+	let enableRenderDisposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
 		vscode.window.showInformationMessage("Rendering enabled");
 		render();
 		vscode.workspace.onDidChangeTextDocument(() => {
@@ -12,10 +12,42 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	context.subscriptions.push(disposable);
+	context.subscriptions.push(enableRenderDisposable);
+
+
+	let renderAllDisposable = vscode.commands.registerCommand('cookrender.renderAllInWorkspace', () => {
+		if(vscode.workspace.workspaceFolders?.length === 0) {
+			vscode.window.showInformationMessage("Please open a workspace to run the command.");
+			return;
+		}
+
+		vscode.window.showInformationMessage("Rendering all .cook files in the current workspace");
+
+		let workspaceFolder = vscode.workspace.workspaceFolders![0];
+		const fileGlobPattern = new vscode.RelativePattern(workspaceFolder, '*.cook');
+
+		vscode.workspace.findFiles(fileGlobPattern).then((uris) => {
+			uris.forEach((uri) => {
+				vscode.workspace.fs.readFile(uri).then((rawContent) => {
+					const content = Buffer.from(rawContent).toString('utf8');
+					const fileName: string = path.basename(uri.path, ".cook");
+					const md: string = getMarkdown(new Parser().parse(content), fileName);
+
+					const targetUri: string = path.join(...[path.dirname(uri.path), fileName + '.md']);
+
+					vscode.workspace.fs.writeFile(vscode.Uri.file(targetUri), new TextEncoder().encode(md));
+				});
+			});
+		});
+
+	});
+
+	context.subscriptions.push(renderAllDisposable);
+
 }
 
 export function deactivate() {}
+
 
 function render() {
 	const editor = vscode.window.activeTextEditor;
@@ -23,7 +55,7 @@ function render() {
 
 	if (path.extname(editor.document.fileName) !== ".cook") return;
 
-	const fileName = path.basename(editor.document.fileName, ".cook") // the second argument specifies that .cook should be removed
+	const fileName = path.basename(editor.document.fileName, ".cook"); // the second argument specifies that .cook should be removed
 
 	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileName);
 

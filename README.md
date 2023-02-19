@@ -5,6 +5,8 @@ To run the extension, first open a `.cook` file, then open the command palette w
 
 ![Demo](demo.gif)
 
+To render all files in your workspace, run the **.cook: render all files in workspace** command. 
+
 To turn on inline quantities for ingredients place `"cookrender.enableInlineIngredientQuanitites": true` in your user settings.json file. The same can be done for cookware.
 
 Check out [cooklang.org](https://cooklang.org) for more information.
