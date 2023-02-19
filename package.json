@@ -16,7 +16,7 @@
     "render",
     "markdown"
   ],
-  "version": "0.4.3",
+  "version": "0.4.4",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -24,15 +24,15 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCommand:cookrender.enableRendering",
+    "onCommand:cookrender.renderOpenEditor",
     "onCommand:cookrender.renderAllInWorkspace"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "cookrender.enableRendering",
-        "title": ".cook: enable rendering"
+        "command": "cookrender.renderOpenEditor",
+        "title": ".cook: render open editor"
       },
       {
         "command": "cookrender.renderAllInWorkspace",

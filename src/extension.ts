@@ -4,62 +4,58 @@ import { Parser, ParseResult } from '@cooklang/cooklang-ts';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-	let enableRenderDisposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
-		vscode.window.showInformationMessage("Rendering enabled");
-		render();
+	let enableRenderDisposable = vscode.commands.registerCommand('cookrender.renderOpenEditor', () => {
+		vscode.window.showInformationMessage("Rendering open editor");
+		renderOpenEditor();
 		vscode.workspace.onDidChangeTextDocument(() => {
-			render();
+			renderOpenEditor();
 		});
 	});
 
 	context.subscriptions.push(enableRenderDisposable);
 
-
-	let renderAllDisposable = vscode.commands.registerCommand('cookrender.renderAllInWorkspace', () => {
-		if(vscode.workspace.workspaceFolders?.length === 0) {
-			vscode.window.showInformationMessage("Please open a workspace to run the command.");
-			return;
-		}
-
-		vscode.window.showInformationMessage("Rendering all .cook files in the current workspace");
-
-		let workspaceFolder = vscode.workspace.workspaceFolders![0];
-		const fileGlobPattern = new vscode.RelativePattern(workspaceFolder, '*.cook');
-
-		vscode.workspace.findFiles(fileGlobPattern).then((uris) => {
-			uris.forEach((uri) => {
-				vscode.workspace.fs.readFile(uri).then((rawContent) => {
-					const content = Buffer.from(rawContent).toString('utf8');
-					const fileName: string = path.basename(uri.path, ".cook");
-					const md: string = getMarkdown(new Parser().parse(content), fileName);
-
-					const targetUri: string = path.join(...[path.dirname(uri.path), fileName + '.md']);
-
-					vscode.workspace.fs.writeFile(vscode.Uri.file(targetUri), new TextEncoder().encode(md));
-				});
-			});
-		});
-
-	});
-
-	context.subscriptions.push(renderAllDisposable);
-
+	context.subscriptions.push(vscode.commands.registerCommand('cookrender.renderAllInWorkspace', renderWorkspace));
 }
 
 export function deactivate() {}
 
 
-function render() {
+function renderOpenEditor() {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) return;
 
 	if (path.extname(editor.document.fileName) !== ".cook") return;
 
-	const fileName = path.basename(editor.document.fileName, ".cook"); // the second argument specifies that .cook should be removed
+	writeMdFile(editor.document.getText(), editor.document.fileName);
+}
 
-	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileName);
+function renderWorkspace() {
+	if(vscode.workspace.workspaceFolders?.length === 0) {
+		vscode.window.showInformationMessage("Please open a workspace to run the command.");
+		return;
+	}
 
-	const targetUri: string = path.join(...[path.dirname(editor.document.fileName), fileName + '.md']);
+	let workspaceFolder = vscode.workspace.workspaceFolders![0];
+	const fileGlobPattern = new vscode.RelativePattern(workspaceFolder, '*.cook');
+
+	vscode.workspace.findFiles(fileGlobPattern).then((uris) => {
+		uris.forEach((uri) => {
+			vscode.workspace.fs.readFile(uri).then((rawContent) => {
+				writeMdFile(Buffer.from(rawContent).toString('utf8'), uri.path);
+			});
+		});
+	});
+
+	vscode.window.showInformationMessage("Rendered all .cook files in the workspace.");
+}
+
+function writeMdFile(content: string, filePath: string): void {
+	const fileName = path.basename(filePath, ".cook"); // the second argument specifies that .cook should be removed
+
+	const md: string = getMarkdown(new Parser().parse(content), fileName);
+
+	const targetUri: string = path.join(...[path.dirname(filePath), fileName + '.md']);
+
 	vscode.workspace.fs.writeFile(vscode.Uri.file(targetUri), new TextEncoder().encode(md));
 }
 
