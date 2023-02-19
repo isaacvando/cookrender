@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { TextEncoder } from 'util';
 import { Parser, ParseResult } from '@cooklang/cooklang-ts';
-import { posix } from 'path';
+import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('cookrender.enableRendering', () => {
@@ -21,13 +21,13 @@ function render() {
 	const editor = vscode.window.activeTextEditor;
 	if (!editor) return;
 
-	const fileName = posix.basename(editor.document.fileName);
-	if (posix.extname(fileName) !== ".cook") return;
+	if (path.extname(editor.document.fileName) !== ".cook") return;
 
-	const fileNameNoExt: string = fileName.split('.')[0];
-	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
+	const fileName = path.basename(editor.document.fileName, ".cook") // the second argument specifies that .cook should be removed
 
-	const targetUri: string = posix.join(...[posix.dirname(editor.document.fileName), fileNameNoExt + '.md']);
+	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileName);
+
+	const targetUri: string = path.join(...[path.dirname(editor.document.fileName), fileName + '.md']);
 	vscode.workspace.fs.writeFile(vscode.Uri.file(targetUri), new TextEncoder().encode(md));
 }
 
@@ -90,8 +90,6 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 }
 
 // escape markdown control symbols so they are printed as literals instead of disrupting the expected formatting
-// currently this method escapes all control symbols regardless of context which means sometims the output will have uneccesarily
-// escaped symbols which is kind of annoying
 function escapeMD(x: string | undefined): string {
 	if (!x) return "";
 
