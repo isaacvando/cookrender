@@ -19,12 +19,10 @@ export function deactivate() {}
 
 function render() {
 	const editor = vscode.window.activeTextEditor;
-	if (!editor) 
-		return;
+	if (!editor) return;
 
 	const fileName = posix.basename(editor.document.fileName);
-	if (posix.extname(fileName) !== ".cook")
-		return;
+	if (posix.extname(fileName) !== ".cook") return;
 
 	const fileNameNoExt: string = fileName.split('.')[0];
 	const md: string = getMarkdown(new Parser().parse(editor.document.getText()), fileNameNoExt);
@@ -36,7 +34,7 @@ function render() {
 function getMarkdown(parsed: ParseResult, fileName: string): string {
 	let md = `# ${fileName}\n\n`;
 
-	if(parsed.shoppingList && !parsed.steps.length) {
+	if(parsed.shoppingList && !parsed.steps.length && Object.keys(parsed.metadata).length === 0) {
 		for (let key in parsed.shoppingList) {
 			md += `## ${escapeMD(key)}\n`;
 			parsed.shoppingList[key].forEach((item) => {
@@ -47,7 +45,6 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 		return md;
 	}
 
-	md += parsed.metadata.keys ? "\n## Metadata\n" : "";
 	for (let key in parsed.metadata)
 		md += `**${escapeMD(key)}:** ${escapeMD(parsed.metadata[key])}  \n`;
 
@@ -96,11 +93,10 @@ function getMarkdown(parsed: ParseResult, fileName: string): string {
 // currently this method escapes all control symbols regardless of context which means sometims the output will have uneccesarily
 // escaped symbols which is kind of annoying
 function escapeMD(x: string | undefined): string {
-	if (!x)
-		return "";
+	if (!x) return "";
 
 	return x.replace(/#/g, '\\#')
-		.replace(/-/g, '\\-')
+		.replace(/- /g, '\\- ')
 		.replace(/~/g, '\\~')
 		.replace(/_/g, '\\_')
 		.replace(/\*/g, '\\*')
